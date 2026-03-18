@@ -7,7 +7,7 @@ const app = express();
 //Que acepte los JSON desde POSTMAN
 app.use(express.json());
 
-app.use("api/products", productRoutes)
+app.use("/api/products", productRoutes)
 
 //Se exporta la constante para su uso en otros archivos
 export default app
