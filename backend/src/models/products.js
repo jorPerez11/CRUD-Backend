@@ -21,8 +21,8 @@ const productSchema = new Schema ({
         type: Number
     }
 }, {
-    timestamps: true,
+    timestamps: true, //Añade campos createdAt, updatedAt y la versión del documento (__v)
     strict: false //False por si se desea agregar más campos en la colección 
 });
 
-export default model ("products", productSchema);
+export default model ("Products", productSchema);
