@@ -3,6 +3,7 @@ import productRoutes from "./src/routes/products.js"
 import branchesRoutes from "./src/routes/branches.js";
 import employeesRoutes from "./src/routes/employees.js";
 import reviewsRoutes from "./src/routes/reviews.js";
+import clientRoutes from "./src/routes/clients.js";
 
 //Variable almacenante de libreria express
 const app = express();
@@ -17,6 +18,8 @@ app.use("/api/branches", branchesRoutes);
 app.use("/api/employees", employeesRoutes);
 
 app.use("/api/reviews", reviewsRoutes);
+
+app.use("/api/clients", clientRoutes);
 
 //Se exporta la constante para su uso en otros archivos
 export default app
