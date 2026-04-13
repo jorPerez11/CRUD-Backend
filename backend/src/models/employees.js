@@ -37,7 +37,11 @@ const employeeSchema = new Schema ({
     idBranch:{//Referencia al ID de la sucursal a la que pertenece el empleado
         type: mongoose.Schema.Types.ObjectId, 
         ref: "Branches"
-    }
+    },
+    isVerified:{
+        type: Boolean,
+        default: false
+    },
     }, {
         timestamps: true,
         strict: false

@@ -4,28 +4,19 @@ import jsonwebtoken from "jsonwebtoken"; //Token
 import bcryptjs from "bcryptjs"; //Encriptación
 import { config } from "../../config.js";
 
-import clientModel from "../models/clients.js";
-
 //Array de funciones
-const registerClientController = {};
+const registerEmployeesController = {};
 
-registerClientController.register = async (req, res) => {
+registerEmployeesController.register = async (req, res) => {
     //1. Solicitar datos
-    const {
-        name,
-        lastName,
-        birthdate,
-        email,
-        password,
-        isVerified
-    } = req.body;
+    const { name, lastName, salary, DUI, phone, email, password, idBranch, isVerified  } = req.body;
 
     try {
         //2. Validar que el correo no exista
-        const existingClient = await clientModel.findOne({ email });
-        if (existingClient) {
+        const existingEmployee = await employeeModel.findOne({ email });
+        if (existingEmployee) {
             return res.status(400).json({ message: "Email already exists" });
-        }
+        }   
 
         //3. Encriptación de contraseña
         const passwordHash = await bcryptjs.hash(password, 10); //10 Es el número de veces que se encripta. Se le conoce como "salt rounds"
@@ -40,41 +31,39 @@ registerClientController.register = async (req, res) => {
                 randomNumber,
                 name,
                 lastName,
-                birthdate,
+                salary,
+                DUI,
+                phone,
                 email,
                 password: passwordHash,
+                idBranch,
                 isVerified,
             },
-            //#2 Clave secreta para firmar el token (Debe ser una cadena larga y segura)
-            config.JWT.secret,
-            //#3 Opciones de Token (Tiempo de expiración)
-            { expiresIn: "15m" },
+            config.JWT_SECRET,
+            { expiresIn: "15m" } //El token expira en 15 minutos
         );
 
-        res.cookie("registrationCookie", token, { maxAge: 15 * 60 * 1000 })
+        res.cookie("registrationCookie", token, { maxAge: 15 * 60 * 1000 }) //La cookie expira en 15 minutos
 
         //Envío de código aleatorio por correo
-        //#1 Creación de transporter (Email Sender)
         const transporter = nodemailer.createTransport({
             service: "gmail",
             auth: {
                 user: config.email.user_email,
-                pass: config.email.user_pass,
-            },
-
-        })
+                pass: config.email.user_pass
+            }
+        });
 
         //#2 Creación de mailOptions (Envio de código)
-        const mailOptions = {
+        await transporter.sendMail({
             from: config.email.user_email,
             to: email,
-            subject: "Verificación de Usuario",
-            text: "Para verificar su cuenta, utilice el siguiente código: "
-                + randomNumber + " Este código expira en 15 minutos."
-        }
+            subject: "Código de Verificación",
+            text: "Para registrarse como empleado, utilice el siguiente código de verificación: " + randomNumber + "\n\nEste código es válido por 15 minutos."
+        });
 
         //#3 Envio del código
-        transporter.sendMail(mailOptions, (error, info) => {
+         transporter.sendMail(mailOptions, (error, info) => {
             if (error) {
                 console.log("error" + error)
                 return res.status(500).json({ message: "Mail Service Error" })
@@ -83,56 +72,62 @@ registerClientController.register = async (req, res) => {
         });
 
 
-    } catch (err) {
-        console.log("error", err);
+    } catch (error) {
+        console.log("error", error);
         return res.status(500).json({ message: "Internal Server Error" })
     };
-};
+}
 
-//Verificación del código ingresado 
-registerClientController.verifyCode = async (req, res) => {
+//Verificación del código ingresado
+registerEmployeesController.verifyCode = async (req, res) => {
     try {
-        //Solicitar el coódigo enviado en el frontend
+        //Solicitud del código enviado en el frontend
         const { verificationCodeRequest } = req.body;
 
-        //Obtener el token de las cookies
-        const token = req.cookies.registrationCookie
+        //Obtención del token de las cookies
+        const token = req.cookies.registrationCookie;
 
-        //Extracción de la info de la token
-        const decoded = jsonwebtoken.verify(token, config.JWT.secret);
+        //Extracción de la info del token
+        const decoded = jsonwebtoken.verify(token, config.JWT_SECRET);
 
         const {
             randomNumber: storedCode,
             name,
             lastName,
-            birthdate,
+            salary,
+            DUI,
+            phone,
             email,
-            password,
-            isVerified,
-        } = decoded
-
-        //Comparar lo ingresado por el usuario con el código del token
+            password: passwordHash,
+            idBranch,
+            isVerified
+        } = decoded;
+        
+        //Comparación de lo ingresado por el usuario con el código del token
         if (verificationCodeRequest !== storedCode) {
-            return res.status(400).json({ message: "Invalid Code" })
+            return res.status(400).json({ message: "Invalid Code" });
         }
 
-        const newCustomer = new clientModel({
+        const newEmployee = new employeeModel({
             name,
             lastName,
-            birthdate,
+            salary,
+            DUI,
+            phone,
             email,
-            password,
+            password: passwordHash,
+            idBranch,
             isVerified
         });
 
-        await newCustomer.save();
+        await newEmployee.save();
 
-        return res.status(200).json({message: "Customer Created Succesfully"})
+        return res.status(200).json({ message: "Employee Created Succesfully" });
 
     } catch (error) {
         console.log("error", error);
-        return res.status(500).json({ message: "Internal Server Error" })
+        return res.status(500).json({ message: "Internal Server Error" });
     };
-};
+}
 
-export default registerClientController;
+export default registerEmployeesController;

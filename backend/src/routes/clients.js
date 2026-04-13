@@ -1,6 +1,6 @@
 import express from "express";
 import clientController from "../controllers/clientsController.js"
-import branchesController from "../controllers/branchesController";
+import branchesController from "../controllers/branchesController.js";
 
 //Router() ayuda a colocar los métodos que tendrá el endpoint
 const router = express.Router();
