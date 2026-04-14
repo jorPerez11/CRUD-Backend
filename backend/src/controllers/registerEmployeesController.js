@@ -122,6 +122,9 @@ registerEmployeesController.verifyCode = async (req, res) => {
 
         await newEmployee.save();
 
+        // Eliminar la cookie de registro
+        res.clearCookie("registrationCookie");
+
         return res.status(200).json({ message: "Employee Created Succesfully" });
 
     } catch (error) {

@@ -127,6 +127,9 @@ registerClientController.verifyCode = async (req, res) => {
 
         await newCustomer.save();
 
+        // Eliminar la cookie de registro
+        res.clearCookie("registrationCookie");
+
         return res.status(200).json({message: "Customer Created Succesfully"})
 
     } catch (error) {

@@ -7,6 +7,7 @@ import clientRoutes from "./src/routes/clients.js";
 import registerCustomerRoutes from "./src/routes/registerCustomer.js";
 import registerAdminRoutes from "./src/routes/registerAdmin.js";
 import registerEmployeesRoutes from "./src/routes/registerEmployee.js";
+import loginCustomer from "./src/routes/loginCustomer.js"
 import cookieParser from "cookie-parser";
 
 //Variable almacenante de libreria express
@@ -33,6 +34,8 @@ app.use("/api/registerClients", registerCustomerRoutes);
 app.use("/api/registerAdmins", registerAdminRoutes);
 
 app.use("/api/registerEmployees", registerEmployeesRoutes);
+
+app.use("/api/loginCostumer", loginCustomer);
 
 //Se exporta la constante para su uso en otros archivos
 export default app

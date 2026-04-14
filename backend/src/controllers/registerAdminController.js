@@ -98,7 +98,10 @@ registerAdminsController.verifyCode = async (req, res) => {
 
         await newAdmin.save();
 
-        return res.status(200).json({ message: "Customer Created Succesfully" })
+        // Eliminar la cookie de registro
+        res.clearCookie("registrationCookie");
+
+        return res.status(200).json({ message: "Admin Created Succesfully" })
 
     } catch (error) {
         console.log("error", error);
